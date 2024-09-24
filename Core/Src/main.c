@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include "string.h"
 #include "menu.h"
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,6 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define SIZE_MAIN_MENU 2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,8 +46,12 @@
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
+
+// глобальные переменные для работы с меню
 uint8_t layer = 0;
 bool button_status = false;
+Action but;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,22 +100,60 @@ int main(void)
 
   lcd1602_Init();
 
-  MenuManager menu_selector;
-  uint8_t current_point = 0;
+  // Добавление пунктов главного меню
+  MenuManager main_menu_selector;
+  main_menu_selector.size = SIZE_MAIN_MENU;
 
-  strcpy(menu_selector.menu[0].name,"Test Mem");
-  menu_selector.menu[0].size = 9;
+  uint8_t main_menu_current_point = 0;	// номер выбранного пункта главного меню
 
-  strcpy(menu_selector.menu[1].name, "Write Mem");
-  menu_selector.menu[1].size = 10;
 
-  PrintMenu(&menu_selector, current_point);
+  strcpy(main_menu_selector.menu[0].name,"Test Mem");
+  main_menu_selector.menu[0].size = 9;
+  //TODO
+
+  strcpy(main_menu_selector.menu[1].name, "Write Mem");
+  main_menu_selector.menu[1].size = 10;
+  //TODO
+
+  PrintMainMenu(&main_menu_selector, main_menu_current_point);
+
+  extern uint8_t layer;
+  extern bool button_status;
+  extern Action but;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if (button_status == true)
+	  {
+		  switch(but)
+		  {
+		  case Ok:
+
+			  button_status = false;
+			  break;
+		  case Back:
+
+			  button_status = false;
+			  break;
+		  case Left:
+			  main_menu_current_point--;
+			  main_menu_current_point = abs(main_menu_current_point) % main_menu_selector.size; // исключаем выход за значение размера меню
+
+			  FourthButtonHandler(&main_menu_selector, layer, main_menu_current_point);
+			  button_status = false;
+			  break;
+		  case Right:
+			  main_menu_current_point++;
+			  main_menu_current_point %= main_menu_selector.size; // исключаем выход за значение размера меню
+
+			  FourthButtonHandler(&main_menu_selector, layer, main_menu_current_point);
+			  button_status = false;
+			  break;
+		  }
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -241,39 +285,28 @@ void EXTI15_10_IRQHandler(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	extern bool button_status;
+	extern Action but;
+
 	if(GPIO_Pin == GPIO_PIN_8)
 	{
-		if (layer == 0)
-		{
-			lcd1602_Clean_Text();
-			lcd1602_SetCursor(0, 0);
-			lcd1602_Print_text("SEND MSG...");
-
-			//TODO
-
-			lcd1602_SetCursor(0, 1);
-			lcd1602_Print_text("COMPLETE");
-
-			// небольшая задержка, чтобы было понятно, что данные записались
-			uint32_t t = HAL_GetTick();
-				while (HAL_GetTick() - t < 10) {}
-
-		}
+		button_status = true;
+		but = Ok;
 	}
 	else if(GPIO_Pin == GPIO_PIN_9)
 	{
-		lcd1602_Clean_Text();
-		lcd1602_Print_text("hate");
+		button_status = true;
+		but = Back;
 	}
 	else if (GPIO_Pin == GPIO_PIN_10)
 	{
-		lcd1602_Clean_Text();
-		lcd1602_Print_text("PID...");
+		button_status = true;
+		but = Left;
 	}
 	else
 	{
-		lcd1602_Clean_Text();
-		lcd1602_Print_text("PIDZHAKI");
+		button_status = true;
+		but = Right;
 	}
 }
 /* USER CODE END 4 */

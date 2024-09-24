@@ -1,5 +1,10 @@
 #include "menu.h"
 
+// добавление пунктов вложенного меню
+uint8_t nested_menu_current_point = 0;
+MenuManager choice_firm;
+
+// добавление символов, чтобы пользователь понимал, какой пункт главного меню он выбрал
 void GetChoisePoint(char* mes, uint8_t size_mes, char* choise)
 {
 	for (uint8_t i = 0; i < size_mes; i++)
@@ -12,7 +17,8 @@ void GetChoisePoint(char* mes, uint8_t size_mes, char* choise)
 	choise[size_mes+1] = '\0';
 }
 
-void PrintMenu(MenuManager* m, uint8_t point)
+// Вывод пунктов главного меню
+void PrintMainMenu(MenuManager* m, uint8_t point)
 {
 	uint8_t menu_size = sizeof(m->menu) / sizeof(m->menu[0]);
 
@@ -34,9 +40,55 @@ void PrintMenu(MenuManager* m, uint8_t point)
 		second_msg = m->menu[point+1].name;
 	}
 
+	lcd1602_Clean_Text();
+
 	lcd1602_SetCursor(0, 0);
 	lcd1602_Print_text(first_msg);
 
 	lcd1602_SetCursor(0, 1);
 	lcd1602_Print_text(second_msg);
+}
+
+void FirsButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+{
+	if (layer == 0)
+	{
+		switch(current_point)
+		{
+		case 0:
+
+			break;
+		case 1:
+
+			break;
+		}
+	}
+	else
+	{
+
+	}
+}
+
+void SecondButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+{
+	if (layer == 1)
+	{
+
+	}
+}
+
+void ThirdButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+{
+	if (layer == 0)
+	{
+
+	}
+}
+
+void FourthButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+{
+	if (layer == 0)
+	{
+		PrintMainMenu(main_menu, current_point);
+	}
 }

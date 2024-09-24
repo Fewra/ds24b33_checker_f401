@@ -1,2 +1,6 @@
-../Core/Src/menu.c:3:6:GetChoisePoint	2
-../Core/Src/menu.c:15:6:PrintMenu	2
+../Core/Src/menu.c:8:6:GetChoisePoint	2
+../Core/Src/menu.c:21:6:PrintMainMenu	2
+../Core/Src/menu.c:52:6:FirsButtonHandler	3
+../Core/Src/menu.c:72:6:SecondButtonHandler	1
+../Core/Src/menu.c:80:6:ThirdButtonHandler	1
+../Core/Src/menu.c:88:6:FourthButtonHandler	2
