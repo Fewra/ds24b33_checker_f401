@@ -22,7 +22,7 @@ typedef enum {
 typedef struct {
 	char name[13];
 	uint8_t size;
-	int (*ActionFun)(Action);
+	void (*ActionFun)(UART_HandleTypeDef*);
 } IMenu;
 
 // если добавляем пункты меню, то меняем размер поля IMenu
@@ -31,11 +31,11 @@ typedef struct {
 	uint8_t size;
 } MenuManager;
 
-
+extern void CheckMemHandler(UART_HandleTypeDef *huart);
 extern void PrintMainMenu(MenuManager* m, uint8_t point);
-extern void FirsButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point);
-extern void SecondButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point);
-extern void ThirdButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point);
-extern void FourthButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point);
+extern void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point);
+extern void SecondButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point);
+extern void ThirdButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point);
+extern void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point);
 
 #endif /* INC_MENU_H_ */

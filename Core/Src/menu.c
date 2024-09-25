@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "ds24b33_manage.h"
 
 // добавление пунктов вложенного меню
 uint8_t nested_menu_current_point = 0;
@@ -49,19 +50,29 @@ void PrintMainMenu(MenuManager* m, uint8_t point)
 	lcd1602_Print_text(second_msg);
 }
 
-void FirsButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void CheckMemHandler(UART_HandleTypeDef *huart)
+{
+	lcd1602_Clean_Text();
+	lcd1602_SetCursor(0, 0);
+	lcd1602_Print_text("CHECK MEM");
+	lcd1602_SetCursor(0, 1);
+
+	if (check_memory(huart))
+	{
+		lcd1602_Print_text("SUCCESS");
+	}
+	else
+	{
+		lcd1602_Print_text("ERORR");
+	}
+	HAL_Delay(500);
+}
+
+void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
 {
 	if (layer == 0)
 	{
-		switch(current_point)
-		{
-		case 0:
-
-			break;
-		case 1:
-
-			break;
-		}
+		main_menu->menu[current_point].ActionFun(huart);
 	}
 	else
 	{
@@ -69,7 +80,7 @@ void FirsButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_po
 	}
 }
 
-void SecondButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void SecondButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
 {
 	if (layer == 1)
 	{
@@ -77,7 +88,7 @@ void SecondButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_
 	}
 }
 
-void ThirdButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void ThirdButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
 {
 	if (layer == 0)
 	{
@@ -85,7 +96,7 @@ void ThirdButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_p
 	}
 }
 
-void FourthButtonHandler(MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
 {
 	if (layer == 0)
 	{

@@ -7,7 +7,7 @@
 
 #include "ds24b33_manage.h"
 
-void write_data_toMem(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
+static void write_data_toMem(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
 {
 	uint8_t TA1 = (addr & 0x00FF);
 	uint8_t TA2 = ((addr & 0xFF00)>>8);
@@ -76,7 +76,7 @@ bool write_Userdata(UART_HandleTypeDef *huart, const uint8_t *data, size_t size,
 }
 
 
-void get_rand_data(uint8_t *data)
+static void get_rand_data(uint8_t *data)
 {
 	for (uint8_t i=0; i<32; i++)
 	{
@@ -84,7 +84,7 @@ void get_rand_data(uint8_t *data)
 	}
 }
 
-bool compare_data(uint8_t *write_data, uint8_t *read_data)
+static bool compare_data(uint8_t *write_data, uint8_t *read_data)
 {
 	for (uint8_t i = 0; i < 32; i++)
 	{
@@ -94,7 +94,7 @@ bool compare_data(uint8_t *write_data, uint8_t *read_data)
 	return memory_true;
 }
 
-void read_mem_data(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
+static void read_mem_data(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
 {
 	uint8_t TA1 = (addr & 0x00FF);
 	uint8_t TA2 = ((addr & 0xFF00)>>8);

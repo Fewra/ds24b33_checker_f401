@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "string.h"
 #include "menu.h"
 #include "ds24b33_manage.h"
@@ -46,7 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
@@ -61,8 +62,9 @@ Action but;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_USART2_UART_Init(void);
+static void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN PFP */
+void ExpectTargetDevice(MenuManager* menu, uint8_t point, ONEWIRE_Status* status);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -100,11 +102,13 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  MX_USART2_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(100);
 
   lcd1602_Init();
+
+  ONEWIRE_Status status = OneWire_Reset(&huart6); // проверка наличия подключенной ds24b33
 
   // Добавление пунктов главного меню
   MenuManager main_menu_selector;
@@ -115,7 +119,7 @@ int main(void)
 
   strcpy(main_menu_selector.menu[0].name,"Test Mem");
   main_menu_selector.menu[0].size = 9;
-  //TODO
+  main_menu_selector.menu[0].ActionFun = CheckMemHandler;
 
   strcpy(main_menu_selector.menu[1].name, "Write Mem");
   main_menu_selector.menu[1].size = 10;
@@ -132,33 +136,53 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (button_status == true)
+	  if (status == ONEWIRE_OK)
 	  {
-		  switch(but)
+		  if (button_status == true)
 		  {
-		  case Ok:
-			  FirsButtonHandler(&main_menu_selector, layer, main_menu_current_point);
-			  button_status = false;
-			  break;
-		  case Back:
-			  SecondButtonHandler(&main_menu_selector, layer, main_menu_current_point);
-			  button_status = false;
-			  break;
-		  case Left:
-			  main_menu_current_point--;
-			  main_menu_current_point = abs(main_menu_current_point) % main_menu_selector.size; // исключаем выход за значение размера меню
+			  layer %= 2;  // проверка значения layer, чтобы не выйти за пределы
 
-			  FourthButtonHandler(&main_menu_selector, layer, main_menu_current_point);
-			  button_status = false;
-			  break;
-		  case Right:
-			  main_menu_current_point++;
-			  main_menu_current_point %= main_menu_selector.size; // исключаем выход за значение размера меню
+			  switch(but)
+			  {
+			  case Ok:
+				  FirsButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
 
-			  FourthButtonHandler(&main_menu_selector, layer, main_menu_current_point);
-			  button_status = false;
-			  break;
+				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
+				  button_status = false;
+				  break;
+			  case Back:
+				  SecondButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
+
+				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
+				  button_status = false;
+				  break;
+			  case Left:
+				  main_menu_current_point--;
+				  main_menu_current_point = abs(main_menu_current_point) % main_menu_selector.size; // исключаем выход за значение размера меню
+
+				  ThirdButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
+
+				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
+				  button_status = false;
+				  break;
+			  case Right:
+				  main_menu_current_point++;
+				  main_menu_current_point %= main_menu_selector.size; // исключаем выход за значение размера меню
+
+				  FourthButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
+
+				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
+				  button_status = false;
+				  break;
+			  }
 		  }
+		  status = OneWire_Reset(&huart6);
+	  }
+	  else
+	  {
+		  layer = 0;
+		  main_menu_current_point = 0;
+		  ExpectTargetDevice(&main_menu_selector, main_menu_current_point, &status);
 	  }
     /* USER CODE END WHILE */
 
@@ -247,35 +271,35 @@ static void MX_I2C1_Init(void)
 }
 
 /**
-  * @brief USART2 Initialization Function
+  * @brief USART6 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
+static void MX_USART6_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART2_Init 0 */
+  /* USER CODE BEGIN USART6_Init 0 */
 
-  /* USER CODE END USART2_Init 0 */
+  /* USER CODE END USART6_Init 0 */
 
-  /* USER CODE BEGIN USART2_Init 1 */
+  /* USER CODE BEGIN USART6_Init 1 */
 
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_HalfDuplex_Init(&huart2) != HAL_OK)
+  /* USER CODE END USART6_Init 1 */
+  huart6.Instance = USART6;
+  huart6.Init.BaudRate = 115200;
+  huart6.Init.WordLength = UART_WORDLENGTH_8B;
+  huart6.Init.StopBits = UART_STOPBITS_1;
+  huart6.Init.Parity = UART_PARITY_NONE;
+  huart6.Init.Mode = UART_MODE_TX_RX;
+  huart6.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart6.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_HalfDuplex_Init(&huart6) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
+  /* USER CODE BEGIN USART6_Init 2 */
 
-  /* USER CODE END USART2_Init 2 */
+  /* USER CODE END USART6_Init 2 */
 
 }
 
@@ -309,6 +333,21 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void ExpectTargetDevice(MenuManager* menu, uint8_t point, ONEWIRE_Status* status)
+{
+	lcd1602_Clean_Text();
+	lcd1602_SetCursor(0, 0);
+	lcd1602_Print_text("ERROR");
+	lcd1602_SetCursor(0, 1);
+	lcd1602_Print_text("INSERT DS24B33");
+
+	while(*status)
+	{
+		*status = OneWire_Reset(&huart6);
+	}
+
+	PrintMainMenu(menu, point);
+}
 
 void EXTI9_5_IRQHandler(void)
 {
