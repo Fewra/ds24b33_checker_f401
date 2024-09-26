@@ -1,7 +1,7 @@
 ../Core/Src/menu.c:9:6:GetChoisePoint	32	static
 ../Core/Src/menu.c:22:6:PrintMainMenu	48	static
 ../Core/Src/menu.c:53:6:CheckMemHandler	16	static
-../Core/Src/menu.c:71:6:FirsButtonHandler	24	static
-../Core/Src/menu.c:83:6:SecondButtonHandler	24	static
-../Core/Src/menu.c:91:6:ThirdButtonHandler	24	static
-../Core/Src/menu.c:99:6:FourthButtonHandler	24	static
+../Core/Src/menu.c:73:6:FirsButtonHandler	24	static
+../Core/Src/menu.c:95:6:SecondButtonHandler	24	static
+../Core/Src/menu.c:103:6:ThirdButtonHandler	24	static
+../Core/Src/menu.c:114:6:FourthButtonHandler	24	static

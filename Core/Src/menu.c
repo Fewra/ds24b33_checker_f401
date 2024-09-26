@@ -68,38 +68,56 @@ void CheckMemHandler(UART_HandleTypeDef *huart)
 	HAL_Delay(500);
 }
 
-void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+//void Print
+
+void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
-	if (layer == 0)
+
+	if (*layer == 0)
 	{
-		main_menu->menu[current_point].ActionFun(huart);
+		if (*main_menu_current_point == 0)
+		{
+			main_menu->menu[*main_menu_current_point].ActionFun(huart);
+			PrintMainMenu(main_menu, *main_menu_current_point);
+		}
+		else
+		{
+			// TODO вывести меню
+			(*layer)++;
+		}
 	}
 	else
 	{
-
+		//main_menu->menu[*main_menu_current_point].ActionFun(huart);
 	}
 }
 
-void SecondButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void SecondButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
-	if (layer == 1)
+	if (*layer == 1)
 	{
 
 	}
 }
 
-void ThirdButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void ThirdButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
-	if (layer == 0)
+	if (*layer == 0)
 	{
+		(*main_menu_current_point)--;
+		*main_menu_current_point = abs(*main_menu_current_point) % main_menu->size; // исключаем выход за значение размера меню
 
+		PrintMainMenu(main_menu, *main_menu_current_point);
 	}
 }
 
-void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t layer, uint8_t current_point)
+void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
-	if (layer == 0)
+	if (*layer == 0)
 	{
-		PrintMainMenu(main_menu, current_point);
+		(*main_menu_current_point)++;
+		*main_menu_current_point %= main_menu->size; // исключаем выход за значение размера меню
+
+		PrintMainMenu(main_menu, *main_menu_current_point);
 	}
 }

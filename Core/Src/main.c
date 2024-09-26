@@ -52,7 +52,7 @@ UART_HandleTypeDef huart6;
 /* USER CODE BEGIN PV */
 
 // глобальные переменные для работы с меню
-uint8_t layer = 0;
+uint8_t layer = 0; // уровень вложенности меню (максимальное значение - 1)
 bool button_status = false;
 Action but;
 
@@ -145,38 +145,29 @@ int main(void)
 			  switch(but)
 			  {
 			  case Ok:
-				  FirsButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
+				  FirsButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
-				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
 				  button_status = false;
 				  break;
 			  case Back:
-				  SecondButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
+				  SecondButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
-				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
 				  button_status = false;
 				  break;
 			  case Left:
-				  main_menu_current_point--;
-				  main_menu_current_point = abs(main_menu_current_point) % main_menu_selector.size; // исключаем выход за значение размера меню
+				  ThirdButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
-				  ThirdButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
-
-				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
 				  button_status = false;
 				  break;
 			  case Right:
-				  main_menu_current_point++;
-				  main_menu_current_point %= main_menu_selector.size; // исключаем выход за значение размера меню
+				  FourthButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
-				  FourthButtonHandler(&huart6, &main_menu_selector, layer, main_menu_current_point);
-
-				  PrintMainMenu(&main_menu_selector, main_menu_current_point);
 				  button_status = false;
 				  break;
 			  }
 		  }
-		  status = OneWire_Reset(&huart6);
+
+		  status = OneWire_Reset(&huart6); // проверяем наличия модуля на линии памяти
 	  }
 	  else
 	  {
@@ -333,6 +324,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+// Функция ожидания вставки модуля памяти (висим в ней пока линия пустая)
 void ExpectTargetDevice(MenuManager* menu, uint8_t point, ONEWIRE_Status* status)
 {
 	lcd1602_Clean_Text();
