@@ -8,6 +8,9 @@
 #ifndef INC_MENU_H_
 #define INC_MENU_H_
 
+#define SIZE_NESTED_MENU 	4
+#define LCD1602_LENGTH		16
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "lcd1602_i2c_lib.h"

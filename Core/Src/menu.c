@@ -1,9 +1,8 @@
 #include "menu.h"
 #include "ds24b33_manage.h"
 
-// добавление пунктов вложенного меню
+
 uint8_t nested_menu_current_point = 0;
-MenuManager choice_firm;
 
 // добавление символов, чтобы пользователь понимал, какой пункт главного меню он выбрал
 void GetChoisePoint(char* mes, uint8_t size_mes, char* choise)
@@ -68,7 +67,30 @@ void CheckMemHandler(UART_HandleTypeDef *huart)
 	HAL_Delay(500);
 }
 
-//void Print
+void PrintWriteDataMenu()
+{
+	extern uint8_t nested_menu_current_point;
+	char pointer[LCD1602_LENGTH] = "                ";
+
+	// исключаем выход за значение размера меню
+	if (nested_menu_current_point < 0)
+	{
+		nested_menu_current_point = SIZE_NESTED_MENU;
+	}
+	else
+	{
+		nested_menu_current_point = abs(nested_menu_current_point) % SIZE_NESTED_MENU;
+	}
+
+	pointer[nested_menu_current_point*5] = '^';
+
+	lcd1602_Clean_Text();
+	lcd1602_SetCursor(0, 0);
+	lcd1602_Print_text("1    2    3    4");
+
+	lcd1602_SetCursor(0, 1);
+	lcd1602_Print_text(pointer);
+}
 
 void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
@@ -82,21 +104,30 @@ void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_
 		}
 		else
 		{
-			// TODO вывести меню
+			PrintWriteDataMenu();
 			(*layer)++;
 		}
 	}
 	else
 	{
+		// TODO добавить обработчик
 		//main_menu->menu[*main_menu_current_point].ActionFun(huart);
+		(*layer)--;
+
+		PrintMainMenu(main_menu, *main_menu_current_point);
 	}
 }
 
 void SecondButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
 {
+	extern uint8_t nested_menu_current_point;
+
 	if (*layer == 1)
 	{
+		(*layer)--;
+		nested_menu_current_point = 0;
 
+		PrintMainMenu(main_menu, *main_menu_current_point);
 	}
 }
 
@@ -109,6 +140,13 @@ void ThirdButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8
 
 		PrintMainMenu(main_menu, *main_menu_current_point);
 	}
+	else
+	{
+		extern uint8_t nested_menu_current_point;
+		nested_menu_current_point--;
+
+		PrintWriteDataMenu();
+	}
 }
 
 void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point)
@@ -119,5 +157,12 @@ void FourthButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint
 		*main_menu_current_point %= main_menu->size; // исключаем выход за значение размера меню
 
 		PrintMainMenu(main_menu, *main_menu_current_point);
+	}
+	else
+	{
+		extern uint8_t nested_menu_current_point;
+		nested_menu_current_point++;
+
+		PrintWriteDataMenu();
 	}
 }
