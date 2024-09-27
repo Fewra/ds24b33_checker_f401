@@ -28,7 +28,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/menu.h ../Core/Inc/lcd1602_i2c_lib.h \
- ../Core/Inc/ds24b33_manage.h ../Core/Inc/ds24b33.h ../Core/Inc/onewire.h
+ ../Core/Inc/ds24b33_manage.h ../Core/Inc/ds24b33.h ../Core/Inc/onewire.h \
+ ../Core/Inc/ds24b33_manage.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -63,3 +64,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/ds24b33_manage.h:
 ../Core/Inc/ds24b33.h:
 ../Core/Inc/onewire.h:
+../Core/Inc/ds24b33_manage.h:

@@ -10,10 +10,12 @@
 
 #define SIZE_NESTED_MENU 	4
 #define LCD1602_LENGTH		16
+#define FIRMWARE_SIZE		64
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "lcd1602_i2c_lib.h"
+#include "ds24b33_manage.h"
 
 typedef enum {
 	Ok,
@@ -34,6 +36,7 @@ typedef struct {
 	uint8_t size;
 } MenuManager;
 
+extern void WriteFirmHandler(UART_HandleTypeDef* huart);
 extern void CheckMemHandler(UART_HandleTypeDef *huart);
 extern void PrintMainMenu(MenuManager* m, uint8_t point);
 extern void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_t* layer, uint8_t* main_menu_current_point);

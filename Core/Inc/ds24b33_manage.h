@@ -15,5 +15,7 @@
 
 extern bool write_Userdata(UART_HandleTypeDef *huart, const uint8_t *data, size_t size, uint16_t addr);
 extern bool check_memory(UART_HandleTypeDef *huart);
+extern void read_mem_data(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr);
+extern bool compare_data(const uint8_t *write_data, const uint8_t *read_data, size_t size);
 
 #endif /* INC_DS24B33_MANAGE_H_ */

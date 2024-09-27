@@ -84,9 +84,9 @@ static void get_rand_data(uint8_t *data)
 	}
 }
 
-static bool compare_data(uint8_t *write_data, uint8_t *read_data)
+bool compare_data(const uint8_t *write_data, const uint8_t *read_data, size_t size)
 {
-	for (uint8_t i = 0; i < 32; i++)
+	for (uint8_t i = 0; i < size; i++)
 	{
 		if (write_data[i] != read_data[i])
 			return memory_false;
@@ -94,7 +94,7 @@ static bool compare_data(uint8_t *write_data, uint8_t *read_data)
 	return memory_true;
 }
 
-static void read_mem_data(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
+void read_mem_data(UART_HandleTypeDef *huart, uint8_t *data, size_t size, uint16_t addr)
 {
 	uint8_t TA1 = (addr & 0x00FF);
 	uint8_t TA2 = ((addr & 0xFF00)>>8);
@@ -124,7 +124,7 @@ bool check_memory(UART_HandleTypeDef *huart)
 		write_data_toMem(huart, data, 32, addr);
 		read_mem_data(huart, readMem_data, 32, addr);
 
-		if (!compare_data(data, readMem_data))
+		if (!compare_data(data, readMem_data, 32))
 			return memory_false;
 	}
 

@@ -36,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SIZE_MAIN_MENU 2
+#define SIZE_MAIN_MENU	2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -123,7 +123,7 @@ int main(void)
 
   strcpy(main_menu_selector.menu[1].name, "Write Mem");
   main_menu_selector.menu[1].size = 10;
-  //TODO
+  main_menu_selector.menu[1].ActionFun = WriteFirmHandler;
 
   PrintMainMenu(&main_menu_selector, main_menu_current_point);
 
@@ -174,6 +174,7 @@ int main(void)
 		  layer = 0;
 		  main_menu_current_point = 0;
 		  ExpectTargetDevice(&main_menu_selector, main_menu_current_point, &status);
+		  button_status = false;
 	  }
     /* USER CODE END WHILE */
 

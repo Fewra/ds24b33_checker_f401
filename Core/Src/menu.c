@@ -1,6 +1,5 @@
 #include "menu.h"
-#include "ds24b33_manage.h"
-
+#include "firmware.h"
 
 uint8_t nested_menu_current_point = 0;
 
@@ -67,6 +66,38 @@ void CheckMemHandler(UART_HandleTypeDef *huart)
 	HAL_Delay(500);
 }
 
+void WriteFirmHandler(UART_HandleTypeDef* huart)
+{
+	extern const uint8_t Data_1[];
+	extern const uint8_t Data_2[];
+	extern const uint8_t Data_3[];
+	extern const uint8_t Data_4[];
+
+	extern uint8_t nested_menu_current_point;
+	const uint8_t* Data_arr[4] = {Data_1, Data_2, Data_3, Data_4};
+	uint8_t read_data[FIRMWARE_SIZE];
+
+	lcd1602_Clean_Text();
+	lcd1602_SetCursor(0, 0);
+	lcd1602_Print_text("WRITING...");
+
+	write_Userdata(huart, Data_arr[nested_menu_current_point], FIRMWARE_SIZE, 0x00);
+	read_mem_data(huart, read_data, FIRMWARE_SIZE, 0x00);
+
+	lcd1602_SetCursor(0, 1);
+
+	if (compare_data(Data_arr[nested_menu_current_point], read_data, FIRMWARE_SIZE))
+	{
+		lcd1602_Print_text("SUCCESS");
+	}
+	else
+	{
+		lcd1602_Print_text("ERROR");
+	}
+
+	HAL_Delay(800);
+}
+
 void PrintWriteDataMenu()
 {
 	extern uint8_t nested_menu_current_point;
@@ -110,8 +141,10 @@ void FirsButtonHandler(UART_HandleTypeDef *huart, MenuManager* main_menu, uint8_
 	}
 	else
 	{
-		// TODO добавить обработчик
-		//main_menu->menu[*main_menu_current_point].ActionFun(huart);
+		main_menu->menu[*main_menu_current_point].ActionFun(huart);
+
+		extern uint8_t nested_menu_current_point;
+		nested_menu_current_point = 0;
 		(*layer)--;
 
 		PrintMainMenu(main_menu, *main_menu_current_point);
