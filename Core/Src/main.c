@@ -51,6 +51,10 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
+// переменные для устранения дребезга контактов
+volatile uint8_t flag_irq = 0;
+volatile uint32_t time_irq = 0;
+
 // глобальные переменные для работы с меню
 uint8_t layer = 0; // уровень вложенности меню (максимальное значение - 1)
 bool button_status = false;
@@ -138,42 +142,67 @@ int main(void)
   {
 	  if (status == ONEWIRE_OK)
 	  {
-		  if (button_status == true)
+		  if (button_status && (HAL_GetTick() - time_irq) > 200)
 		  {
 			  layer %= 2;  // проверка значения layer, чтобы не выйти за пределы
 
+			  // внутри кейсов включаем соответствующее внешнее прерывание
 			  switch(but)
 			  {
 			  case Ok:
 				  FirsButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
+
+				  __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+				  NVIC_ClearPendingIRQ(EXTI9_5_IRQn);
+				  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 				  button_status = false;
 				  break;
 			  case Back:
 				  SecondButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
+				  __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+				  NVIC_ClearPendingIRQ(EXTI9_5_IRQn);
+				  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
 				  button_status = false;
 				  break;
 			  case Left:
 				  ThirdButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
+
+				  __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
+				  NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
+				  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 				  button_status = false;
 				  break;
 			  case Right:
 				  FourthButtonHandler(&huart6, &main_menu_selector, &layer, &main_menu_current_point);
 
+				  __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
+				  NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
+				  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 				  button_status = false;
 				  break;
 			  }
 		  }
 
-		  status = OneWire_Reset(&huart6); // проверяем наличия модуля на линии памяти
+		  status = OneWire_Reset(&huart6); // проверяем наличия модуля памяти на линии
 	  }
 	  else
 	  {
+		  HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+		  HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+
 		  layer = 0;
 		  main_menu_current_point = 0;
+
 		  ExpectTargetDevice(&main_menu_selector, main_menu_current_point, &status);
+
+		  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+		  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 		  button_status = false;
 	  }
     /* USER CODE END WHILE */
@@ -361,23 +390,39 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 	if(GPIO_Pin == GPIO_PIN_8)
 	{
+		HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+
 		button_status = true;
 		but = Ok;
+
+		time_irq = HAL_GetTick();
 	}
 	else if(GPIO_Pin == GPIO_PIN_9)
 	{
+		HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+
 		button_status = true;
 		but = Back;
+
+		time_irq = HAL_GetTick();
 	}
 	else if (GPIO_Pin == GPIO_PIN_10)
 	{
+		HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+
 		button_status = true;
 		but = Left;
+
+		time_irq = HAL_GetTick();
 	}
 	else
 	{
+		HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+
 		button_status = true;
 		but = Right;
+
+		time_irq = HAL_GetTick();
 	}
 }
 /* USER CODE END 4 */
